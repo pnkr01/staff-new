@@ -463,10 +463,14 @@ class HomePage extends GetView<HomeController> {
                                               );
                                             }).toList(),
                                             // Step 5.
-                                            onChanged: (newValue) {
-                                              controller
-                                                  .changeGstText(newValue);
-                                            },
+                                            onChanged: controller
+                                                        .gstTypeText.value ==
+                                                    "Exempt"
+                                                ? null
+                                                : (newValue) {
+                                                    controller.changeGstText(
+                                                        newValue);
+                                                  },
                                           ),
                                         ),
                                       ),

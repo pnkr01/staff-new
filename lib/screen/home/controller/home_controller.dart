@@ -56,15 +56,13 @@ class HomeController extends GetxController {
       gstTypeText.value == 'Exempt' ? 'None' : 'Goods/Services';
   String get getNarrationText => invoiceNo.text;
   String get getItemName => partNo.text;
-  String get getQty => qty.text;
+  num get getQty => num.tryParse(qty.text) ?? 0;
   String get getUnit => map[partNo.text]?[1] ?? "Pcs";
-  String get getPrice => mrp.text;
-  String get getDisc => completeResult.toStringAsFixed(2);
-  String get getAmount => (num.tryParse(mrp.text)! -
-          (num.tryParse(mrp.text)! *
-                  (num.tryParse(completeResult.toString())! / 100)) *
-              num.tryParse(qty.text)!)
-      .toStringAsFixed(2);
+  num get getPrice => num.tryParse(mrp.text) ?? 0;
+  num get getDisc => num.tryParse(completeResult.toStringAsFixed(2)) ?? 0;
+  num get getAmount => ((getPrice -
+          ((getPrice * num.tryParse(completeResult.toString())!) / 100)) *
+      getQty);
   //------------End----------------------------------
   RegExp regExp = RegExp(r'[^\w\s]', multiLine: true, caseSensitive: false);
 
@@ -105,7 +103,8 @@ class HomeController extends GetxController {
 
   Future<bool> checkPartyExcelFileExists() async {
     output = (await getExternalStorageDirectory())!;
-    var filePath = '${output.path}/${partyName.text}.xlsx';
+    var filePath =
+        '${output.path}/${partyName.text.replaceAll(regExp, '')}.xlsx';
     myFile = File(filePath);
     if (myFile!.existsSync()) {
       return true;
@@ -390,7 +389,7 @@ class HomeController extends GetxController {
     completeResult = halfResult * 100;
     final result = completeResult.toStringAsFixed(2);
     handlepartyExcelFile().then((value) => showDialog(
-          barrierDismissible: false,
+          // barrierDismissible: false,
           context: Get.context!,
           builder: (context) {
             return showPopup(result);
@@ -433,7 +432,7 @@ class HomeController extends GetxController {
         (double.tryParse(mrp.value.text))!;
     completeResult = halfResult * 100;
     handlepartyExcelFile().then((value) => showDialog(
-        barrierDismissible: false,
+        //  barrierDismissible: false,
         context: Get.context!,
         builder: (context) {
           return showPopup(completeResult.toStringAsFixed(2));
@@ -541,14 +540,6 @@ class HomeController extends GetxController {
     // Save the Excel file
     await saveExcelFile(workbook, fileName);
   }
-  // handlepartyExcelFile().then((value) {
-  //               Get.back();
-  //               Share.shareFiles(['${outputParty.path}/${partyName.text}.xlsx'],
-  //                       text: 'Updated Sheet')
-  //                   .then((value) {
-  //                 showAlertTocheckUserSharedThisFile();
-  //               });
-  //             });
 
   fillExcelSheet(Sheet sheet) async {
     sheet.appendRow([
@@ -563,8 +554,9 @@ class HomeController extends GetxController {
       getUnit,
       getPrice,
       getDisc,
-      getAmount
+      num.tryParse(getAmount.toStringAsFixed(2))
     ]);
+    staffPrint('getAmount is $getAmount and ${getAmount.toStringAsFixed(2)}');
   }
 
 // Helper function to save an Excel file
