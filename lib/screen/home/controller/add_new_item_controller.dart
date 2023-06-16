@@ -403,7 +403,7 @@ class AddNewItemCOntroller extends GetxController {
       getUnitText,
       getTaxCategory,
       getHsnCode,
-      getMrpText,
+      num.tryParse(getMrpText),
       getLocationText,
       "Y"
     ]);
